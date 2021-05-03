@@ -1,0 +1,36 @@
+{
+	"name": "yassa",
+	"version": "0.0.1",
+	"description": "Manage environment configurations for Node-based projects flexibly and secure",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Constantiner/yassa.git"
+	},
+	"keywords": [
+		"nodejs",
+		"JavaScript",
+		"dotenv",
+		"environment",
+		"configuration",
+		"library",
+		"TypeScript",
+		"environment-variables",
+		"configuration-management",
+		"env",
+		"configuration-files",
+		"hierarchical-configuration"
+	],
+	"author": {
+		"name": "Konstantin Kovalev",
+		"email": "constantiner@gmail.com"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Constantiner/yassa/issues"
+	},
+	"homepage": "https://github.com/Constantiner/yassa#readme"
+}
