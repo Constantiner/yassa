@@ -1,0 +1,25 @@
+# Project-level Codex configuration.
+# Docs:
+# - https://developers.openai.com/codex/config-basic
+# - https://developers.openai.com/codex/config-reference
+
+model = "gpt-5-codex"
+model_reasoning_effort = "high"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "auto"
+# Codex project bootstrap config
+
+[tools]
+web_search = true
+
+[profiles.review]
+model_reasoning_effort = "high"
+approval_policy = "on-request"
+
+[profiles.fast]
+model_reasoning_effort = "medium"
+approval_policy = "on-failure"
+
+[sandbox_workspace_write]
+network_access = false
