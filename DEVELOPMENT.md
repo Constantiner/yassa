@@ -358,6 +358,7 @@ Where configured:
 - `.github/workflows/release.yml` has `permissions.id-token: write`
 - `changesets/action` publishes via `npm run release`
 - no `NPM_TOKEN` is provided to publish step
+- workflow upgrades npm to latest before publishing (Trusted Publishing compatibility)
 
 ### Required npm-side setup checklist
 
@@ -365,7 +366,7 @@ Where configured:
 2. Configure a Trusted Publisher.
 3. Provider: GitHub Actions.
 4. Repository: `Constantiner/yassa`.
-5. Workflow file: `release.yml`.
+5. Workflow file path: `.github/workflows/release.yml`.
 6. Branch restriction: `main` (recommended).
 
 Why:
@@ -377,6 +378,7 @@ Why:
 Also used in release workflow:
 
 - `GITHUB_TOKEN` to create tags/releases in GitHub
+- modern npm CLI (trusted publishing requirements can be stricter than Node-bundled npm)
 
 ## 9) Token-Based Publish (Fallback only)
 
@@ -489,13 +491,17 @@ Fix:
 Cause:
 
 - Trusted Publisher mapping is missing/misconfigured in npm, or publish token fallback is invalid.
+- npm CLI version in workflow is too old for current trusted publishing requirements.
+- long publish lifecycle scripts can consume the short-lived credential window.
 
 Fix:
 
 1. Verify npm Trusted Publisher points to this exact repo/workflow/branch.
 2. Confirm workflow has `permissions.id-token: write`.
-3. If using fallback token mode, regenerate token and update `NPM_TOKEN`.
-4. Re-run release workflow.
+3. Confirm workflow logs show modern npm version (after upgrade step).
+4. If publish is still failing and `prepublishOnly` is heavy, reduce work done during publish hook.
+5. If using fallback token mode, regenerate token and update `NPM_TOKEN`.
+6. Re-run release workflow.
 
 ### Q6: Publish failed with "version already exists"
 
