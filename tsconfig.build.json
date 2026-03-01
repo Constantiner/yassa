@@ -3,11 +3,16 @@
 	"compilerOptions": {
 		"noEmit": false,
 		"declaration": true,
-		"declarationMap": true,
+		"declarationMap": false,
 		"isolatedDeclarations": true,
-		"emitDeclarationOnly": true,
+		"emitDeclarationOnly": false,
 		"outDir": "./dist",
-		"rootDir": "./src"
+		"rootDir": "./src",
+		"allowJs": false,
+		"checkJs": false,
+		"verbatimModuleSyntax": true,
+		"stripInternal": true,
+		"skipLibCheck": true
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["src/**/*.test.ts", "coverage", "dist", "node_modules"]

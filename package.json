@@ -47,9 +47,7 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "npm run build:js && npm run build:types",
-		"build:js": "tsdown --no-dts",
-		"build:types": "tsc -p tsconfig.build.json --pretty false",
+		"build": "tsdown",
 		"changeset": "changeset",
 		"checks": "npm run lint && npm run typecheck",
 		"ci": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build",
@@ -86,7 +84,7 @@
 		"lint-staged": "^16.0.0",
 		"prettier": "^3.0.0",
 		"prettier-plugin-packagejson": "^2.0.0",
-		"tsdown": "^0.14.0",
+		"tsdown": "^0.21.0-beta.2",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.0.0",
 		"vitest": "^4.0.0"

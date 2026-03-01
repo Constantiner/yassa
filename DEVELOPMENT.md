@@ -543,8 +543,6 @@ npm run format:check
 
 # build outputs
 npm run build
-npm run build:js
-npm run build:types
 
 # release prep
 npm run changeset
