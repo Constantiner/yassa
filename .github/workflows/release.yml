@@ -104,7 +104,7 @@ jobs:
 
                   TARGET_COMMIT=""
                   while read -r commit; do
-                    version="$(git show "${commit}:package.json" 2>/dev/null | node -e 'const fs = require(\"node:fs\"); try { const pkg = JSON.parse(fs.readFileSync(0, \"utf8\")); process.stdout.write(pkg.version ?? \"\"); } catch { process.stdout.write(\"\"); }')"
+                    version="$(git show "${commit}:package.json" 2>/dev/null | node -p "(() => { try { return JSON.parse(require('node:fs').readFileSync(0, 'utf8')).version ?? '' } catch { return '' } })()")"
                     if [ "$version" = "1.0.0" ]; then
                       TARGET_COMMIT="$commit"
                       break
