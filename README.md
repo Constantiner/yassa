@@ -1,6 +1,6 @@
 # yassa<!-- omit in toc -->
 
-[![codecov](https://codecov.io/gh/Constantiner/yassa/graph/badge.svg?token=6I2WF0CEKL)](https://codecov.io/gh/Constantiner/yassa)
+[![NPM Version](https://img.shields.io/npm/v/yassa.svg)](https://www.npmjs.com/package/yassa) [![codecov](https://codecov.io/gh/Constantiner/yassa/graph/badge.svg?token=6I2WF0CEKL)](https://codecov.io/gh/Constantiner/yassa)
 
 Resolve environment-aware config file hierarchy for Node.js applications.
 
