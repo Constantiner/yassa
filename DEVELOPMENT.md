@@ -349,11 +349,38 @@ Choose `major` when:
 
 For major releases, add migration notes in changeset summary and PR description.
 
-## 8) npm Authentication and Token Setup (Current workflow)
+## 8) npm Trusted Publishing (Current workflow)
 
-Current release workflow uses `NPM_TOKEN` secret:
+Current release workflow publishes to npm using Trusted Publishing (OIDC), not `NPM_TOKEN`.
 
-- `.github/workflows/release.yml` -> env includes `NPM_TOKEN`
+Where configured:
+
+- `.github/workflows/release.yml` has `permissions.id-token: write`
+- `changesets/action` publishes via `npm run release`
+- no `NPM_TOKEN` is provided to publish step
+
+### Required npm-side setup checklist
+
+1. Open npm package settings for `yassa`.
+2. Configure a Trusted Publisher.
+3. Provider: GitHub Actions.
+4. Repository: `Constantiner/yassa`.
+5. Workflow file: `release.yml`.
+6. Branch restriction: `main` (recommended).
+
+Why:
+
+- avoids long-lived publish tokens
+- npm issues short-lived credentials for the trusted workflow run
+- reduces secret leakage risk
+
+Also used in release workflow:
+
+- `GITHUB_TOKEN` to create tags/releases in GitHub
+
+## 9) Token-Based Publish (Fallback only)
+
+Use token-based publishing only if Trusted Publishing is unavailable.
 
 ### Step-by-step: create and store `NPM_TOKEN`
 
@@ -366,36 +393,11 @@ Current release workflow uses `NPM_TOKEN` secret:
 7. Secret name: `NPM_TOKEN`.
 8. Secret value: token from npm.
 
-Why:
-
-- release workflow reads `secrets.NPM_TOKEN` during publish.
-- release workflow uses `secrets.GITHUB_TOKEN` to create git tag/release in GitHub.
-
 Security notes:
 
 - Prefer least privilege token scope.
 - Use expiration and rotate regularly.
 - Revoke token immediately if leaked.
-
-## 9) Trusted Publishing (Recommended security path)
-
-You can migrate to npm Trusted Publishing (OIDC) to avoid long-lived publish tokens.
-
-Good news for this repo:
-
-- release workflow already has `permissions.id-token: write`.
-
-Migration summary:
-
-1. Configure trusted publisher in npm package settings.
-2. Point it to this repo and workflow filename: `release.yml`.
-3. Validate one release publish.
-4. Then remove/retire publish token usage if desired.
-
-Note:
-
-- npm docs currently require modern Node/npm in CI for trusted publishing.
-- Validate requirements before switching.
 
 ## 10) Manual Release (Fallback / Emergency)
 
@@ -486,13 +488,14 @@ Fix:
 
 Cause:
 
-- missing/expired/insufficient `NPM_TOKEN`.
+- Trusted Publisher mapping is missing/misconfigured in npm, or publish token fallback is invalid.
 
 Fix:
 
-1. Regenerate token in npm.
-2. Update GitHub `NPM_TOKEN` secret.
-3. Re-run release workflow.
+1. Verify npm Trusted Publisher points to this exact repo/workflow/branch.
+2. Confirm workflow has `permissions.id-token: write`.
+3. If using fallback token mode, regenerate token and update `NPM_TOKEN`.
+4. Re-run release workflow.
 
 ### Q6: Publish failed with "version already exists"
 
