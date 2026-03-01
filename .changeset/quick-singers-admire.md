@@ -1,0 +1,5 @@
+---
+"yassa": major
+---
+
+## Initial release
