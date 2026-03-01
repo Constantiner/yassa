@@ -1,6 +1,6 @@
 {
 	"name": "yassa",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Manage environment configurations for Node-based projects flexibly and secure",
 	"keywords": [
 		"nodejs",
