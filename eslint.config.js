@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
 import vitestPlugin from "@vitest/eslint-plugin";
 import pluginImport from "eslint-plugin-import";
 import nodePlugin from "eslint-plugin-n";
@@ -13,28 +14,41 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const vitestRecommendedRules = vitestPlugin.configs?.recommended?.rules ?? {};
+const importRecommendedRules = pluginImport.configs?.recommended?.rules ?? {};
 
-/** @type {import("typescript-eslint").ConfigArray} */
-export default tseslint.config(
-	{
-		ignores: [".changeset/**", ".github/**", ".husky/**", "coverage/**", "dist/**", "node_modules/**"]
-	},
+const nodeLanguageOptions = {
+	globals: {
+		...globals.node
+	}
+};
+
+const commonPlugins = {
+	import: pluginImport,
+	n: nodePlugin,
+	unicorn: eslintPluginUnicorn
+};
+
+/** @type {import("eslint").Linter.RulesRecord} */
+const commonRules = {
+	"import/no-duplicates": "error",
+	"import/no-unresolved": "error",
+	"no-console": "error",
+	"no-else-return": ["error", { allowElseIf: false }],
+	"unicorn/no-array-for-each": "off",
+	"unicorn/no-array-reduce": "off",
+	"unicorn/prefer-node-protocol": "error"
+};
+
+export default defineConfig(
+	globalIgnores([".changeset/**", ".github/**", ".husky/**", "coverage/**", "dist/**", "node_modules/**"]),
 	js.configs.recommended,
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.strictTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	{
 		files: ["**/*.{js,mjs,cjs}"],
-		plugins: {
-			import: pluginImport,
-			n: nodePlugin,
-			unicorn: eslintPluginUnicorn
-		},
-		languageOptions: {
-			globals: {
-				...globals.node
-			}
-		},
+		plugins: commonPlugins,
+		languageOptions: nodeLanguageOptions,
 		settings: {
 			"import/resolver": {
 				node: true
@@ -42,38 +56,24 @@ export default tseslint.config(
 		},
 		rules: {
 			...tseslint.configs.disableTypeChecked.rules,
-			...pluginImport.configs.recommended.rules,
-			"import/no-duplicates": "error",
-			"import/no-unresolved": "error",
+			...importRecommendedRules,
+			...commonRules,
 			"n/no-missing-import": [
 				"error",
 				{
 					tryExtensions: [".js", ".mjs", ".cjs", ".json"]
 				}
-			],
-			"unicorn/prefer-node-protocol": "error",
-			"unicorn/no-array-for-each": "off",
-			"unicorn/no-array-reduce": "off",
-			"unicorn/no-null": "off",
-			"unicorn/no-useless-undefined": "off",
-			"no-console": "error",
-			"no-else-return": ["error", { allowElseIf: false }]
+			]
 		}
 	},
 	{
 		files: ["**/*.{ts,mts,cts,tsx}"],
-		plugins: {
-			import: pluginImport,
-			n: nodePlugin,
-			unicorn: eslintPluginUnicorn
-		},
+		plugins: commonPlugins,
 		languageOptions: {
+			...nodeLanguageOptions,
 			parserOptions: {
 				projectService: true,
 				tsconfigRootDir: __dirname
-			},
-			globals: {
-				...globals.node
 			}
 		},
 		settings: {
@@ -88,13 +88,12 @@ export default tseslint.config(
 			}
 		},
 		rules: {
-			"@typescript-eslint/explicit-function-return-type": "error",
+			...commonRules,
 			"@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
+			"@typescript-eslint/explicit-function-return-type": "error",
 			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-misused-promises": "error",
 			"import/no-cycle": "error",
-			"import/no-duplicates": "error",
-			"import/no-unresolved": "error",
 			"import/order": [
 				"error",
 				{
@@ -110,21 +109,14 @@ export default tseslint.config(
 				}
 			],
 			"n/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
-			"unicorn/filename-case": ["error", { case: "camelCase" }],
-			"unicorn/no-array-for-each": "off",
-			"unicorn/no-array-reduce": "off",
-			"unicorn/no-null": "off",
-			"unicorn/no-useless-undefined": "off",
-			"unicorn/prefer-node-protocol": "error",
-			"no-console": "error",
-			"no-else-return": ["error", { allowElseIf: false }],
 			"no-restricted-syntax": [
 				"error",
 				{
 					selector: "ExportDefaultDeclaration",
 					message: "Prefer named exports"
 				}
-			]
+			],
+			"unicorn/filename-case": ["error", { case: "camelCase" }]
 		}
 	},
 	{
