@@ -105,3 +105,4 @@ dist
 
 .vscode
 .codex/config.toml
+.husky/_
