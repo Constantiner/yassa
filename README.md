@@ -4,6 +4,10 @@
 
 Resolve environment-aware config file hierarchy for Node.js applications.
 
+`yassa` is the modernized successor of
+[`resolve-node-configs-hierarchy`](https://github.com/Constantiner/resolve-node-configs-hierarchy),
+maintained by the same developers.
+
 `yassa` helps you find:
 
 1. The full precedence chain of existing config files (most specific first), or

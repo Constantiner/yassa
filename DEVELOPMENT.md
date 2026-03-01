@@ -3,6 +3,11 @@
 This is the operational playbook for maintaining and releasing the `yassa` npm package.
 It is written for a new maintainer with zero project context.
 
+Project lineage:
+`yassa` is the modernized successor of
+https://github.com/Constantiner/resolve-node-configs-hierarchy
+from the same developers.
+
 Date baseline for this document: March 1, 2026.
 
 ## 1) Repository Automation Map (What controls what)
