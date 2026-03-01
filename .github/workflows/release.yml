@@ -29,7 +29,6 @@ jobs:
               with:
                   node-version: 22.x
                   cache: npm
-                  registry-url: https://registry.npmjs.org
 
             - name: Upgrade npm for trusted publishing
               run: npm install -g npm@latest
@@ -53,7 +52,9 @@ jobs:
             - name: Read release tag version
               if: steps.changesets.outputs.published == 'true'
               id: release-version
-              run: echo "value=v$(node -p \"JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version\")" >> "$GITHUB_OUTPUT"
+              run: |
+                  VERSION="$(node -p "require('./package.json').version")"
+                  echo "value=v${VERSION}" >> "$GITHUB_OUTPUT"
 
             - name: Create GitHub tag and release
               if: steps.changesets.outputs.published == 'true'
