@@ -2,14 +2,6 @@
 	"name": "yassa",
 	"version": "0.0.1",
 	"description": "Manage environment configurations for Node-based projects flexibly and secure",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Constantiner/yassa.git"
-	},
 	"keywords": [
 		"nodejs",
 		"JavaScript",
@@ -24,13 +16,84 @@
 		"configuration-files",
 		"hierarchical-configuration"
 	],
+	"homepage": "https://github.com/Constantiner/yassa#readme",
+	"bugs": {
+		"url": "https://github.com/Constantiner/yassa/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Constantiner/yassa.git"
+	},
+	"license": "MIT",
 	"author": {
 		"name": "Konstantin Kovalev",
 		"email": "constantiner@gmail.com"
 	},
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/Constantiner/yassa/issues"
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
+			"default": "./dist/index.js"
+		}
 	},
-	"homepage": "https://github.com/Constantiner/yassa#readme"
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"changeset": "changeset",
+		"checks": "npm run lint && npm run typecheck",
+		"ci": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+		"lint:fix": "npm run lint -- --fix",
+		"lint-staged": "lint-staged",
+		"pack:dry-run": "npm pack --dry-run",
+		"prepare": "husky",
+		"prepublishOnly": "npm run ci",
+		"release": "npm run build && changeset publish",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit --pretty false",
+		"version-packages": "changeset version"
+	},
+	"devDependencies": {
+		"@changesets/cli": "^2.0.0",
+		"@eslint/js": "^9.0.0",
+		"@types/node": "^22.0.0",
+		"@vitest/coverage-v8": "^4.0.0",
+		"@vitest/eslint-plugin": "^1.0.0",
+		"eslint": "^9.0.0",
+		"eslint-config-prettier": "^10.0.0",
+		"eslint-import-resolver-typescript": "^4.0.0",
+		"eslint-plugin-import": "^2.0.0",
+		"eslint-plugin-n": "^17.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"eslint-plugin-unicorn": "^56.0.0",
+		"globals": "^16.0.0",
+		"husky": "^9.0.0",
+		"lint-staged": "^16.0.0",
+		"prettier": "^3.0.0",
+		"prettier-plugin-packagejson": "^2.0.0",
+		"tsdown": "^0.21.0-beta.2",
+		"typescript": "^5.0.0",
+		"typescript-eslint": "^8.0.0",
+		"vitest": "^4.0.0"
+	},
+	"engines": {
+		"node": ">=16"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }
