@@ -4,19 +4,24 @@ on:
     push:
         branches:
             - main
+    pull_request_target:
+        types:
+            - closed
+        branches:
+            - main
+    workflow_dispatch:
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
     cancel-in-progress: true
 
-permissions:
-    contents: write
-    pull-requests: write
-    id-token: write
-
 jobs:
-    release:
+    version-pr:
+        if: github.event_name == 'push'
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
 
         steps:
             - name: Checkout repository
@@ -47,12 +52,65 @@ jobs:
               uses: changesets/action@v1
               with:
                   version: npm run version-packages
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Print Changesets outputs (version-pr)
+              run: |
+                  echo "hasChangesets=${{ steps.changesets.outputs.hasChangesets }}"
+                  echo "published=${{ steps.changesets.outputs.published }}"
+                  echo "publishedPackages=${{ steps.changesets.outputs.publishedPackages }}"
+
+    publish:
+        if: >-
+            github.event_name == 'workflow_dispatch' ||
+            (
+              github.event_name == 'pull_request_target' &&
+              github.event.pull_request.merged == true &&
+              github.event.pull_request.base.ref == 'main' &&
+              github.event.pull_request.head.ref == 'changeset-release/main' &&
+              github.event.pull_request.head.repo.full_name == github.repository
+            )
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
+
+        steps:
+            - name: Checkout merged Version Packages commit
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+                  cache: npm
+
+            - name: Upgrade npm for trusted publishing
+              run: npm install -g npm@^11.5.1
+
+            - name: Remove deprecated npm always-auth config
+              run: npm config delete always-auth || true
+
+            - name: Show Node and npm versions
+              run: node -v && npm -v
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Publish via Changesets
+              id: changesets
+              uses: changesets/action@v1
+              with:
                   publish: npm run release:publish
                   createGithubReleases: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Print Changesets outputs
+            - name: Print Changesets outputs (publish)
               run: |
                   echo "hasChangesets=${{ steps.changesets.outputs.hasChangesets }}"
                   echo "published=${{ steps.changesets.outputs.published }}"
