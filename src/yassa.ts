@@ -17,19 +17,19 @@ import { cwd, env } from "node:process";
  * - `<name>.test<ext>`
  * - `<name><ext>`
  */
-export type LocalIgnoredEnvironments = readonly string[];
+export type LocalIgnoredEnvironments = string[];
 
 /** Returns all existing hierarchy files in precedence order (most specific first). */
 export type ConfigHierarchyFilesResolver = (
 	file: string,
 	localIgnoredEnvironments?: LocalIgnoredEnvironments
-) => Promise<readonly string[]>;
+) => Promise<string[]>;
 
 /** Returns all existing hierarchy files in precedence order (most specific first). */
 export type ConfigHierarchyFilesResolverSync = (
 	file: string,
 	localIgnoredEnvironments?: LocalIgnoredEnvironments
-) => readonly string[];
+) => string[];
 
 /** Returns the most specific existing file (or `undefined`). */
 export type ConfigHierarchyFileResolver = (
@@ -43,7 +43,7 @@ export type ConfigHierarchyFileResolverSync = (
 	localIgnoredEnvironments?: LocalIgnoredEnvironments
 ) => string | undefined;
 
-const EMPTY_LOCAL_IGNORED_ENVIRONMENTS: readonly string[] = [];
+const EMPTY_LOCAL_IGNORED_ENVIRONMENTS: string[] = [];
 const projectRootPathPromise = realpath(cwd());
 const NODE_ENV_MISSING_ERROR =
 	"The NODE_ENV environment variable is required. Set it explicitly or use resolveConfig*For factory functions.";
@@ -76,7 +76,7 @@ const buildHierarchyCandidates = (
 	absoluteBaseFilePath: string,
 	environment: string,
 	localIgnoredEnvironments: LocalIgnoredEnvironments
-): readonly string[] => {
+): string[] => {
 	const basePathObject = parse(absoluteBaseFilePath);
 	const baseFilePath = format(basePathObject);
 	const isLocalIgnored = isLocalIgnoredForEnvironment(environment, localIgnoredEnvironments);
@@ -127,21 +127,21 @@ const canReadFileSync = (filePath: string): boolean => {
 	}
 };
 
-const filterExistingFiles = async (filePaths: readonly string[]): Promise<readonly string[]> => {
+const filterExistingFiles = async (filePaths: string[]): Promise<string[]> => {
 	const readabilityResults = await Promise.all(filePaths.map(filePath => canReadFile(filePath)));
 	return filePaths.filter((_, index) => readabilityResults[index]);
 };
 
-const filterExistingFilesSync = (filePaths: readonly string[]): readonly string[] =>
+const filterExistingFilesSync = (filePaths: string[]): string[] =>
 	filePaths.filter(filePath => canReadFileSync(filePath));
 
-const firstOrUndefined = (filePaths: readonly string[]): string | undefined => filePaths[0];
+const firstOrUndefined = (filePaths: string[]): string | undefined => filePaths[0];
 
 /**
  * Creates an async resolver bound to a specific environment.
  *
  * This is the factory form of the API:
- * `(environment) => (file, localIgnoredEnvironments?) => Promise<readonly string[]>`.
+ * `(environment) => (file, localIgnoredEnvironments?) => Promise<string[]>`.
  *
  * Resolution order (highest precedence first):
  *
