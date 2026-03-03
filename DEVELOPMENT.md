@@ -36,7 +36,7 @@ Current configs are inconsistent:
 - Runtime/build targets still state Node 16 compatibility:
     - `package.json` -> `"engines": { "node": ">=16" }`
     - `tsdown.config.ts` -> `target: "node16"`
-- CI currently tests `18.x`, `20.x`, `22.x` (`.github/workflows/ci.yml`)
+- CI currently tests `20.x`, `22.x` (`.github/workflows/ci.yml`)
 - Several dev tools now require newer Node versions than 16.
 
 Practical recommendation for local maintenance today: use Node `22.x`.
@@ -243,14 +243,14 @@ Two workflows run due `push` to `main`:
 Release workflow uses `changesets/action@v1`:
 
 - `version` command: `npm run version-packages`
-- `publish` command: `npm run release`
-- `createGithubReleases: false` (GitHub release is handled explicitly in the next step)
+- `publish` command: `npm run release:publish`
+- `createGithubReleases: true`
 
 Behavior:
 
 - If pending changesets exist: action opens or updates the "Version Packages" release PR.
-- After that PR is merged: next run publishes to npm.
-- If publish actually happened (`steps.changesets.outputs.published == 'true'`), workflow reads `package.json` version and creates a GitHub tag/release named `v<version>` (for example, `v1.4.0`).
+- After that PR is merged: next run publishes unpublished package versions to npm.
+- On successful publish: Changesets also creates the corresponding GitHub release automatically.
 
 ## 6) Reference Release Workflow (Patch, Minor, Major)
 
@@ -304,10 +304,10 @@ Maintainer action:
 After release PR merge, release workflow runs again and executes:
 
 ```bash
-npm run release
+npm run release:publish
 ```
 
-`npm run release` expands to:
+`npm run release:publish` expands to:
 
 1. `npm run build`
 2. `changeset publish`
@@ -315,8 +315,15 @@ npm run release
 Publish result:
 
 - package published to npm
-- version tag and GitHub release created automatically as `v<version>` (example: `v1.4.0`)
-- GitHub release notes generated automatically by GitHub Actions
+- version tag and GitHub release created automatically from the published changeset
+
+Manual fallback command:
+
+```bash
+npm run release
+```
+
+`npm run release` intentionally runs full validation first (`npm run ci`) and then calls `npm run release:publish`.
 
 ## 7) Major vs Minor vs Patch: Decision Rules
 
@@ -356,9 +363,10 @@ Current release workflow publishes to npm using Trusted Publishing (OIDC), not `
 Where configured:
 
 - `.github/workflows/release.yml` has `permissions.id-token: write`
-- `changesets/action` publishes via `npm run release`
+- `changesets/action` publishes via `npm run release:publish`
 - no `NPM_TOKEN` is provided to publish step
-- workflow upgrades npm to latest before publishing (Trusted Publishing compatibility)
+- workflow upgrades npm to `>=11.5.1` before publishing (Trusted Publishing compatibility)
+- `prepublishOnly` is intentionally lightweight (`npm run build`) so short-lived OIDC publish credentials are not consumed by long checks
 
 ### Required npm-side setup checklist
 
@@ -479,12 +487,13 @@ Fix:
 
 Cause:
 
-- release PR was not merged yet.
+- release PR was not merged yet, or release workflow failed after merge.
 
 Fix:
 
 1. Merge release PR.
-2. Wait for next `release.yml` run.
+2. Wait for `release.yml` run on `main`.
+3. If it fails, inspect the failed `Version or publish via Changesets` step and re-run after fixing.
 
 ### Q5: Publish failed with npm auth error
 
@@ -499,7 +508,7 @@ Fix:
 1. Verify npm Trusted Publisher points to this exact repo/workflow/branch.
 2. Confirm workflow has `permissions.id-token: write`.
 3. Confirm workflow logs show modern npm version (after upgrade step).
-4. If publish is still failing and `prepublishOnly` is heavy, reduce work done during publish hook.
+4. Keep publish lifecycle scripts lightweight (in this repo `prepublishOnly` should remain build-only).
 5. If using fallback token mode, regenerate token and update `NPM_TOKEN`.
 6. Re-run release workflow.
 
@@ -519,14 +528,14 @@ Fix:
 
 Cause:
 
-- GitHub release step only runs when `steps.changesets.outputs.published == 'true'`.
-- Missing `contents: write` permission or token access issue.
+- `createGithubReleases` was disabled or workflow permissions were insufficient.
+- transient GitHub API failure during release creation.
 
 Fix:
 
-1. Check `release.yml` run logs and confirm `published` output value.
+1. Ensure `release.yml` keeps `createGithubReleases: true`.
 2. Ensure workflow permissions include `contents: write`.
-3. Re-run the workflow for the release commit if publish happened but release creation step failed.
+3. Re-run the release workflow for the publish commit.
 
 ### Q7: What if I do not know bump type?
 
@@ -562,6 +571,7 @@ npm run build
 npm run changeset
 npm run version-packages
 npm run release
+npm run release:publish
 npm run pack:dry-run
 ```
 
