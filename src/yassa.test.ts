@@ -71,6 +71,43 @@ describe("environment config hierarchy", () => {
 		expect(resolvedFiles).toStrictEqual([envLocalFile, envFile, baseFile]);
 	});
 
+	it("excludes files that belong to other environments", async () => {
+		const baseFile = join(workspacePath, "config", ".env");
+		const developmentFile = join(workspacePath, "config", ".env.development");
+		const developmentLocalFile = join(workspacePath, "config", ".env.development.local");
+		const localFile = join(workspacePath, "config", ".env.local");
+		const productionFile = join(workspacePath, "config", ".env.production");
+		const productionLocalFile = join(workspacePath, "config", ".env.production.local");
+		const stagingFile = join(workspacePath, "config", ".env.staging");
+
+		writeFileWithDirectories(baseFile);
+		writeFileWithDirectories(developmentFile);
+		writeFileWithDirectories(developmentLocalFile);
+		writeFileWithDirectories(localFile);
+		writeFileWithDirectories(productionFile);
+		writeFileWithDirectories(productionLocalFile);
+		writeFileWithDirectories(stagingFile);
+
+		const resolveFiles = resolveConfigChainFor("development");
+		const resolveFilesSync = resolveConfigChainForSync("development");
+		const resolveFile = resolveConfigFileFor("development");
+		const resolveFileSync = resolveConfigFileForSync("development");
+
+		await expect(resolveFiles(baseFile)).resolves.toStrictEqual([
+			developmentLocalFile,
+			localFile,
+			developmentFile,
+			baseFile
+		]);
+		expect(resolveFilesSync(baseFile)).toStrictEqual([developmentLocalFile, localFile, developmentFile, baseFile]);
+		await expect(resolveFile(baseFile)).resolves.toBe(developmentLocalFile);
+		expect(resolveFileSync(baseFile)).toBe(developmentLocalFile);
+
+		await expect(resolveFiles(baseFile)).resolves.not.toContain(productionFile);
+		await expect(resolveFiles(baseFile)).resolves.not.toContain(productionLocalFile);
+		await expect(resolveFiles(baseFile)).resolves.not.toContain(stagingFile);
+	});
+
 	it("supports dotted base file names with extension (for example .env.json)", async () => {
 		const baseFile = join(workspacePath, "config", ".env.json");
 		const envFile = join(workspacePath, "config", ".env.staging.json");
