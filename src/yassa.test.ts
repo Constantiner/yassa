@@ -206,6 +206,33 @@ describe("environment config hierarchy", () => {
 		await expect(resolveFiles(baseFile, ["test"])).resolves.not.toContain(envLocalFile);
 	});
 
+	it("keeps local files when localIgnoredEnvironments does not include current environment", async () => {
+		const baseFile = join(workspacePath, "config", ".env");
+		const envFile = join(workspacePath, "config", ".env.test");
+		const localFile = join(workspacePath, "config", ".env.local");
+		const envLocalFile = join(workspacePath, "config", ".env.test.local");
+
+		writeFileWithDirectories(baseFile);
+		writeFileWithDirectories(envFile);
+		writeFileWithDirectories(localFile);
+		writeFileWithDirectories(envLocalFile);
+
+		const resolveFiles = resolveConfigChainFor("test");
+		const resolveFilesSync = resolveConfigChainForSync("test");
+		const resolveFile = resolveConfigFileFor("test");
+		const resolveFileSync = resolveConfigFileForSync("test");
+
+		await expect(resolveFiles(baseFile, ["development"])).resolves.toStrictEqual([
+			envLocalFile,
+			localFile,
+			envFile,
+			baseFile
+		]);
+		expect(resolveFilesSync(baseFile, ["development"])).toStrictEqual([envLocalFile, localFile, envFile, baseFile]);
+		await expect(resolveFile(baseFile, ["development"])).resolves.toBe(envLocalFile);
+		expect(resolveFileSync(baseFile, ["development"])).toBe(envLocalFile);
+	});
+
 	it("reads NODE_ENV for resolveConfig* wrappers", async () => {
 		const baseFile = join(workspacePath, "config", ".env");
 		const envFile = join(workspacePath, "config", ".env.development");
