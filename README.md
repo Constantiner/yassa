@@ -164,26 +164,26 @@ const chain = await resolveTestChain(".env", ["test"]);
 
 ### `resolveConfigChain(file, localIgnoredEnvironments?)`
 
-- Type: `(file: string, localIgnoredEnvironments?: readonly string[]) => Promise<readonly string[]>`
+- Type: `(file: string, localIgnoredEnvironments?: string[]) => Promise<string[]>`
 - Resolves existing chain for current `NODE_ENV`.
 - Throws if `NODE_ENV` is missing or empty.
 
 ### `resolveConfigChainSync(file, localIgnoredEnvironments?)`
 
-- Type: `(file: string, localIgnoredEnvironments?: readonly string[]) => readonly string[]`
+- Type: `(file: string, localIgnoredEnvironments?: string[]) => string[]`
 - Synchronous counterpart of `resolveConfigChain`.
 - Throws if `NODE_ENV` is missing or empty.
 
 ### `resolveConfigFile(file, localIgnoredEnvironments?)`
 
-- Type: `(file: string, localIgnoredEnvironments?: readonly string[]) => Promise<string | undefined>`
+- Type: `(file: string, localIgnoredEnvironments?: string[]) => Promise<string | undefined>`
 - Returns the top file from `resolveConfigChain`.
 - Returns `undefined` when no candidates exist.
 - Throws if `NODE_ENV` is missing or empty.
 
 ### `resolveConfigFileSync(file, localIgnoredEnvironments?)`
 
-- Type: `(file: string, localIgnoredEnvironments?: readonly string[]) => string | undefined`
+- Type: `(file: string, localIgnoredEnvironments?: string[]) => string | undefined`
 - Synchronous counterpart of `resolveConfigFile`.
 - Throws if `NODE_ENV` is missing or empty.
 
@@ -191,22 +191,22 @@ const chain = await resolveTestChain(".env", ["test"]);
 
 ### `resolveConfigChainFor(environment)`
 
-- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: readonly string[]) => Promise<readonly string[]>`
+- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: string[]) => Promise<string[]>`
 - Curried async factory for environment-bound chain resolution.
 
 ### `resolveConfigChainForSync(environment)`
 
-- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: readonly string[]) => readonly string[]`
+- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: string[]) => string[]`
 - Synchronous counterpart of `resolveConfigChainFor`.
 
 ### `resolveConfigFileFor(environment)`
 
-- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: readonly string[]) => Promise<string | undefined>`
+- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: string[]) => Promise<string | undefined>`
 - Curried async factory for single-file resolution.
 
 ### `resolveConfigFileForSync(environment)`
 
-- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: readonly string[]) => string | undefined`
+- Type: `(environment: string) => (file: string, localIgnoredEnvironments?: string[]) => string | undefined`
 - Synchronous counterpart of `resolveConfigFileFor`.
 
 ## Behavior Details
